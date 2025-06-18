@@ -1,8 +1,12 @@
-const searchInput = '[data-testid="search-input"]';
-const patientRow = '[data-testid="patient-row"]';
-const moreFiltersButton = '[data-testid="more-filters-button"]';
-const communicationStatusFilter = '[data-testid="filter-communication-status"]';
-const languageToggle = '[data-testid="language-toggle"]';
+const selectors = {
+  searchInput: '[data-testid="search-input"]',
+  patientRow: '[data-testid="patient-row"]',
+  moreFiltersButton: '[data-testid="more-filters-button"]',
+  communicationStatusFilter: '[data-testid="filter-communication-status"]',
+  languageToggle: '[data-testid="language-toggle"]',
+  avatar: '[data-testid="Avatar"]',
+};
+
 
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
@@ -16,28 +20,39 @@ Given("I open the Patients Journeys view", () => {
 
 When("I expand the {string} menu", (menu) => {
   if (menu === "More Filters") {
-    cy.get(moreFiltersButton).click();
+    cy.get(selectors.moreFiltersButton).click();
   }
 });
 
 When("I filter by Communication Status {string}", (status) => {
-  cy.get(communicationStatusFilter).select(status);
+  cy.get(selectors.communicationStatusFilter).select(status);
 });
 
+Then('I should see the User Profile view', () => {
+  cy.url().should('include', 'settings/profile');
+  //cy.contains('Patients Journeys').should('be.visible');
+});
+
+Then('I should see the Patients Journeys view', () => {
+  cy.url().should('include', '/uphillchallenge/desk');
+  //cy.contains('Patients Journeys').should('be.visible');
+});
+
+
 Then("I should see only patients with status {string}", (expectedStatus) => {
-  cy.get(patientRow).each(($el) => {
+  cy.get(selectors.patientRow).each(($el) => {
     cy.wrap($el).contains(expectedStatus);
   });
 });
 
-
+// Search Feature
 
 When("I enter {string} in the search bar", (name) => {
-  cy.get(searchInput).clear().type(name);
+  cy.get(selectors.searchInput).clear().type(name);
 });
 
 Then("I should see a patient named {string} in the results", (name) => {
-  cy.get(patientRow).should("contain.text", name);
+  cy.get(selectors.patientRow).should("contain.text", name);
 });
 
 
@@ -46,7 +61,7 @@ Given("I have no internet connection", () => {
 });
 
 When("I try to search for a patient", () => {
-  cy.get(searchInput).type("Test Patient");
+  cy.get(selectors.searchInput).type("Test Patient");
 });
 
 Then("I should see an error message indicating a connection issue", () => {
@@ -54,36 +69,41 @@ Then("I should see an error message indicating a connection issue", () => {
   cy.contains("Connection error").should("be.visible");
 });
 
+// Language Switching Feature
 
 Given("the current language is {string}", (lang) => {
   cy.visit("/");
   if (lang === "English") {
-    cy.get(languageToggle).contains("EN").click();
+    cy.get(selectors.languageToggle).contains("EN").click();
   } else if (lang === "Portuguese") {
-    cy.get(languageToggle).contains("PT").click();
+    cy.get(selectors.languageToggle).contains("PT").click();
   } else {
+    // todo: remove, this is not an "assertion error"
     assert.fail("Unrecognized language: "+ lang);
   }
 });
 
-When("I change the language to {string}", (lang) => {
-  cy.get(languageToggle).click();
-  cy.contains(lang).click();
+// todo: refactor these, we need at least selectors?
+When("I change the language to {string}", (targetLang) => {
+  cy.get(selectors.avatar).last().should('be.visible').click();
+
+  const toggleLabel = targetLang === "English" ? "Português" : "English";
+  const optionLabel = targetLang === "English" ? "English" : "Português";
+
+  cy.contains(toggleLabel).should('be.visible').click();
+  cy.contains('p', optionLabel).should('be.visible').click();
 });
 
 Then("the Patients Journeys view should appear in {string}", (lang) => {
-  if (lang === "Portuguese") {
-    cy.contains("Jornadas do Paciente").should("be.visible");
-  } else {
-    cy.contains("Patients Journeys").should("be.visible");
-  }
+  const expectedLabel = lang === "Portuguese" ? "Jornadas de Doentes" : "Patients Journeys";
+
+  cy.contains(expectedLabel).should("be.visible");
 });
 
 Then("all labels in the Patients Journeys view should be in {string}", (lang) => {
-  // Simplified version: check for a key label
   const labels = {
-    English: ["Patients", "Status", "Search"],
-    Portuguese: ["Pacientes", "Estado", "Pesquisar"]
+    English: ["Patients", "Status", "Search", "More filters"],
+    Portuguese: ["Pacientes", "Estado", "Pesquisar", "Mais filtros"]
   };
 
   labels[lang].forEach((label) => {

@@ -13,7 +13,7 @@ export default defineConfig({
     supportFile: "cypress/support/e2e.js",
     async setupNodeEvents(on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) {
       on = cypressOnFix(on);
-      
+
       await addCucumberPreprocessorPlugin(on, config);
       on("file:preprocessor", createBundler({
         plugins: [createEsbuildPlugin(config)],
@@ -32,13 +32,14 @@ export default defineConfig({
           node_version: process.version,
         },
       });
-      
+
       return config;
     },
-    baseUrl: "https://uphillhealth.com", // optional
+    baseUrl: "https://uphillhealth.com",
     env: {
-      login_url: "https://id.uphillhealth.com/signin?service=uphillhealth.com&idpdomain=uphillchallenge&continue=https:%2F%2https://uphillhealth.com/uphillchallenge/desk?routePackageId=ROUTE_PACKAGE_AS_CHALLENGE&page=0&tab=2&phasesIds=*",
       allure: true,
     },
+    // https://docs.cypress.io/app/references/configuration#Timeouts
+    defaultCommandTimeout: 4000,
   },
 });
