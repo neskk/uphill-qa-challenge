@@ -23,9 +23,9 @@
 | Layer          | Tool                      | Rationale                                                   |
 | -------------- | ------------------------- | ----------------------------------------------------------- |
 | E2E Tests      | **Cypress + Cucumber**    | Fast, reliable browser testing with Gherkin syntax support for BDD. |
-| Test Reporting | **Allure**                | Rich, visual reports integrated with Cypress for stakeholder visibility. |
+| Test Reporting | **Allure**                | Rich, visual reports integrated with Cypress and Cucumber for debugging and stakeholder visibility. |
 | CI/CD          | **GitHub Actions**        | Automates testing on pull requests and merges, ensuring rapid feedback. |
-| Linting        | **eslint + prettier**     | Ensures clean, consistent test code for maintainability.     |
+| Linting        | **eslint + prettier**     | Enforces consistent, clean test code for long-term maintainability. |
 
 ### Additional Tools
 - **Jira**: For test case management, defect tracking, and linking test scenarios to user stories, ensuring traceability in a healthcare context.
@@ -53,6 +53,11 @@
 The GitHub repository is organized for clarity and CI/CD integration:
 ```
 patients-journeys-qa/
+├── .github/
+│   ├── workflows/
+│   │   ├── test.yml
+├── allure-results/
+│   └── (generated test data for Allure)
 ├── cypress/
 │   ├── e2e/
 │   │   ├── patients-journeys/
@@ -64,39 +69,41 @@ patients-journeys-qa/
 │   ├── support/
 │   │   ├── commands.js
 │   │   ├── index.js
-├── cypress.config.js
 ├── tests/
 │   ├── unit/
 │   │   ├── components/
 │   │   ├── utils/
 │   ├── api/
 │   │   ├── patientsApi.tests.js
-├── .github/
-│   ├── workflows/
-│   │   ├── test.yml
+├── cypress.config.js
 ├── README.md
 ├── package.json
 ```
+
 - **cypress/e2e/**: Gherkin feature files for BDD-style E2E tests, organized by feature.
 - **cypress/support/**: Custom commands and configuration for reusable test steps.
 - **tests/**: Unit and API tests for components and backend validation.
-- **allure-report/**: Test case documentation and reports.
+- **allure-results/**: Test case documentation and reports.
 - **.github/workflows/**: CI/CD pipeline configurations.
 
 ## 4. CI/CD Integration
 
 Tests are integrated into a GitHub Actions pipeline for rapid, reliable feedback:
-- **Triggers**: Run on pull requests and pushes to `main`/`dev` branches, with nightly regression tests.
+- **Triggers**:
+  - Pull Requests and pushes to `main` and `dev`
+  - Scheduled nightly regression runs
 - **Pipeline Steps**:
   1. Install dependencies.
-  2. Run linting (eslint + prettier) to ensure test code quality.
+  2. Run linting (eslint + prettier).
   3. Run unit tests for component logic.
   4. Run API tests for backend validation.
-  5. Run Cypress E2E tests headlessly against the staging environment (e.g., https://uphillhealth.com/uphillchallenge/desk2).
-  6. Generate and upload test reports (Allure or Mochawesome) as artifacts.
-- **Validation**: Fail builds on test or linting failures to block unstable code.
+  5. Run E2E tests using Cypress in headless mode.
+  6. Generate Allure report.
+  7. Upload reports as artifacts.
+- **Validation**: Fail builds on test or linting failures.
 - **Environment**: Use Docker containers for consistent test environments.
-- **Reporting**: Store reports from Allure and notify stakeholders via Slack/email.
+- **Reporting**: Allure reports are stored and linked for team access.
+  - __Optional__: Notify stakeholders via Slack/email with test summaries
 
 ### Example GitHub Workflow
 ```
@@ -124,40 +131,49 @@ jobs:
       - name: Run API Tests
         run: npm run test:api
       - name: Run E2E Tests
-        run: npm run test:e2e -- --headless
-      - name: Upload Test Reports
+        run: npm run test:e2e
+      - name: Generate Allure Report
+        run: npm run allure:generate
+      - name: Upload Allure Report
         uses: actions/upload-artifact@v3
         with:
-          name: test-reports
-          path: mochawesome-report/
+          name: allure-report
+          path: allure-report/
 ```
 
 ## 5. Test Automation Prioritization Strategy
 
-| Priority | Criteria                                                 |
-| -------- | -------------------------------------------------------- |
-| High     | Critical user flows (filters, search, language switch)   |
-| Medium   | System feedback (error messages, UI alerts)              |
-| Low      | UI style checks, edge cases after main flows are covered |
+### Priority Matrix
 
-### Prioritization Plan
-- **Phase 1**: Automate E2E tests for critical user flows (e.g., filtering by Communication Status, searching by name, language switching).
-- **Phase 2**: Automate API tests for patient data endpoints and error handling (e.g., internet failure alerts).
-- **Phase 3**: Expand unit test coverage and add negative testing for robustness.
-- **Phase 4**: Incorporate accessibility testing to ensure compliance with healthcare standards.
-- **Ongoing**: Balance automation with exploratory testing for new features and edge cases.
+#### High Priority
+- **Critical Business Functions**: Core operations, revenue generation, patient safety, and critical data integrity.
+- **Regulatory & Compliance**: Adherence to legal, industry, or internal standards.
+- **Core User Journeys**: Most frequent or vital user interactions.
+
+#### Medium Priority
+- **Key Integrations**: Verification of internal/external system interfaces.
+- **Performance & Scalability**: System responsiveness and stability under load.
+- **Robust Error Handling**: Expected system behavior and user feedback during failures.
+
+#### Low Priority
+- **Non-Critical Features**: Functionality not impacting core business or safety.
+- **Complex Edge Cases**: Less frequent scenarios, automated post-core coverage.
+- **Cosmetic/Minor UI Issues**: Visual discrepancies not impeding core functionality.
+
+### Automation Prioritization Criteria
+- **Frequency**: Automate heavily used features first (e.g., login, patient search, filtering).
+- **Risk**: Focus on features where failure impacts patient safety or compliance.
+- **Stability**: Prioritize automation for mature features with stable requirements to reduce rework.
+- **ROI**: Target tests that significantly reduce manual effort for repetitive, high-impact scenarios.
 
 ## 6. Key Performance Indicators (KPIs)
 
 | KPI                           | Target                         |
 | ----------------------------- | ------------------------------ |
-| E2E Test Coverage             | ≥ 80% of critical flows        |
+| E2E Test Coverage             | ≥ 90% of critical flows        |
 | Test Execution Time           | < 5 minutes on CI              |
 | Test Flakiness                | < 5%                           |
-| Bug Regressions in Production | Zero known regressions         |
+| Bug Regressions in Production | 0 known regressions from previously covered test cases |
 | PR Feedback Time              | < 10 minutes for automated checks |
 | Defect Detection Rate         | 95% of defects caught pre-release |
 | Automation ROI                | 50% reduction in manual testing within 6 months |
-
-## Conclusion
-This QA and Automation Strategy ensures high-quality releases for Patients Journeys by integrating ISTQB principles with Shift-Left Testing, a balanced Test Pyramid, and BDD with Gherkin. Leveraging tools like Cypress with Cucumber, Allure/Mochawesome, and GitHub Actions, we prioritize critical user flows, ensure rapid feedback via CI/CD, and focus on high-risk areas like patient safety and data security. Clear KPIs track success, enabling efficient delivery of reliable features that empower healthcare professionals.
