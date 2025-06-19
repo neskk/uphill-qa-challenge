@@ -6,9 +6,6 @@ Cypress.Commands.add('login', () => {
 
   cy.visit(loginUrl);
 
-  cy.log('Found username:' + Cypress.env('USERNAME'))
-  cy.log('Found password:' + Cypress.env('PASSWORD'))
-
   // Accept cookie consent if present
   cy.get(loginSelectors.cookieConsentButton, { timeout: 5000 })
     .should('be.visible')
@@ -57,4 +54,33 @@ Cypress.Commands.add('login', () => {
     .then(() => {
       cy.log('Login successful');
     });
+});
+
+Cypress.Commands.add('apiLogin', () => {
+  cy.visit('https://id.uphillhealth.com/signin');
+  cy.request({
+    method: 'POST',
+    url: 'https://id.uphillhealth.com/api/user/login',
+    body: {
+      application: null,
+      email: Cypress.env('USERNAME'),
+      password: Cypress.env('PASSWORD')
+    },
+    headers: {
+      'Content-Type': 'application/json',
+      Referer: 'https://id.uphillhealth.com/signin'
+    }
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+
+    const { access_token, refresh_token } = response.body.data;
+
+    cy.setCookie('access_token', access_token, { domain: '.uphillhealth.com' });
+    cy.setCookie('refresh_token', refresh_token, { domain: '.uphillhealth.com' });
+
+    // XXX: do not seem impact the app startup language
+    cy.setCookie('i18n', 'en', { domain: '.uphillhealth.com' }); // is overriden
+    cy.setCookie('i18nLang', 'en', { domain: '.uphillhealth.com' });
+  });
+  cy.wait(3000);
 });

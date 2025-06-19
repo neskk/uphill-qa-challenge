@@ -14,15 +14,31 @@ const mainUrl = "/uphillchallenge/desk?routePackageId=ROUTE_PACKAGE_AS_CHALLENGE
 
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
+Given("I am programmatically logged in as a healthcare professional", () => {
+  cy.apiLogin();
+  cy.visit(mainUrl);
+  cy.wait(3000);
+});
+
 Given("I am logged in as a healthcare professional", () => {
   cy.login();
 });
 
+/*
 Given("I open the Patients Journeys view", () => {
   cy.visit(mainUrl);
   cy.wait(3000);
   cy.url()
     .should('include', 'uphillchallenge/desk', { timeout: 5000 })
+});
+*/
+
+Given("I open the Patients Journeys view", () => {
+  cy.origin("https://uphillhealth.com", { args: { mainUrl } }, ({ mainUrl }) => {
+    cy.visit(mainUrl);
+    cy.wait(3000);
+    cy.url().should('include', 'uphillchallenge/desk');
+  });
 });
 
 When("I click the {string} menu", (text) => {
@@ -32,10 +48,7 @@ When("I click the {string} menu", (text) => {
     .click();
 
   cy.wait(3000);
-  cy.url()
-    .should('include', 'uphillchallenge', { timeout: 5000 })
 });
-
 
 When("I expand the {string} menu", (menu) => {
     cy.contains(menu)
@@ -62,7 +75,7 @@ When("I filter by {string} with {string}", (filter, status) => {
   cy.get('div[role="menuitem"]').contains(status).click();
   cy.wait(1000);
   cy.get('body').type('{esc}'); // close the dropdown
-  //cy.get('body').click(0, 0); // click the corner of screen
+  //cy.get('body').click(0, 0); // alternatively: click the corner of screen
 });
 
 Then('I should see the User Profile view', () => {
@@ -149,7 +162,7 @@ When('I change the language to {string}', (targetLang) => {
   cy.get('p:not(.LanguageSelecterFont)').contains(targetLang)
     .should('be.visible')
     .click();
-
+  cy.wait(3000);
   Cypress.env('currentLanguage', targetLang);
 });
 

@@ -9,7 +9,7 @@ import cypressOnFix from "cypress-on-fix";
 export default defineConfig({
   defaultBrowser: "chrome",
   e2e: {
-    chromeWebSecurity: false,
+    //chromeWebSecurity: false,
     specPattern: "cypress/e2e/**/*.feature",
     supportFile: "cypress/support/e2e.js",
     async setupNodeEvents(on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) {
