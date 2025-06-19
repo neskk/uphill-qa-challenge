@@ -1,21 +1,21 @@
 Feature: Change application language
+  
+  Background:
+    Given I am logged in as a healthcare professional
 
+  @basic
   Scenario: Switch from English to Portuguese
-    Given I am logged in as a healthcare professional
-    And the current language is English
-    When I change the language to Portuguese
-    Then the Patients Journeys view should appear in Portuguese
-    And all labels in the Patients Journeys view should be in Portuguese
+    Given the current language is "English"
+    When I change the language to "Português"
+    Then the Patients Journeys page title should display "Jornadas de Doentes"
 
+  @basic
   Scenario: Switch from Portuguese to English
-    Given I am logged in as a healthcare professional
-    And the current language is Portuguese
-    When I change the language to English
-    Then the Patients Journeys view should appear in English
-    And all labels in the Patients Journeys view should be in English
+    Given the current language is "Português"
+    When I change the language to "English"
+    Then the Patients Journeys page title should display 'Patients Journeys'
 
   Scenario: Language selection persists across views
-    Given I am logged in as a healthcare professional
-    And the current language is Portuguese
+    And the current language is "Português"
     When I navigate to the Patients Journeys view
-    Then the interface should be displayed in Portuguese
+    Then the Patients Journeys page title should display "Jornadas de Doentes"

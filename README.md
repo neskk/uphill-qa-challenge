@@ -4,6 +4,11 @@
 
 ## [QA Automation Strategy](qa-strategy.md)
 
+## Requirements
+
+- Node.js
+- JAVA for Allure reports
+
 ## Usage
 
 ```bash
@@ -20,13 +25,27 @@ npx allure generate --clean
 npx allure open
 ```
 
+### Filter Scenarios by tags
+
+You can select which scenarios to run based on their tags.
+Set an env-var `tags` with "@smoke and @regression"
+
 ## External Resources
 
 - [Cypress API](https://docs.cypress.io/api/table-of-contents)
+- [Cypress Cucumber Pre-processor][https://github.com/badeball/cypress-cucumber-preprocessor]
 - [Using Allure Cypress with other Cypress plugins](https://allurereport.org/docs/cypress-configuration/)
 
 
+## Issues
+
+Doing the first visit to the login subdomain, forces us to use cy.origin() in subsequent visits and inference.
+
 ## Suggestions / Improvements
+
+### Login Page
+After selecting the Email field, if we remove the focus it immediately triggers validation and displays: "Insira um email válido"/Insert a valid email.
+Suggestion: Validation should not trigger if input is empty as it causes some confusion.
 
 ### Best Practice: Use data-testid or data-cy attributes
 
@@ -43,6 +62,14 @@ Then in Cypress:
 cy.get('[data-testid="login-button"]')
 ```
 
+
+### Patients Journeys view
+
+There are two elements with the `data-testid=avatar` attribute.
+
+---
+
+On More Filters > Status of communication, there's an overlap, both "Outgoing" and "Missing Answers" show the same set of patients.
 
 ### Flakiness
 
