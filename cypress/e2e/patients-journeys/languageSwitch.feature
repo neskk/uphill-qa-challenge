@@ -1,7 +1,8 @@
 Feature: Change application language
   
   Background:
-    Given I am logged in as a healthcare professional
+    Given I clear all saved preferences
+    And I am logged in as a healthcare professional
 
   @basic
   Scenario: Switch from English to Portuguese

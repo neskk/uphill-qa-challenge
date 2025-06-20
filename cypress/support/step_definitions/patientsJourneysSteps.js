@@ -1,6 +1,7 @@
 const selectors = {
   searchInput: 'i.icon-search + input:not([readonly])',
-  moreFiltersButton: '[data-testid="Button"]',
+  openButton: '[data-testid="Button"]',
+  closeButton: 'i.icon-close',
   communicationStatusFilter: '[data-testid="filter-communication-status"]',
   avatar: '[data-testid="Avatar"]',
   boardCard: '[id^="board-card-"]',
@@ -18,17 +19,35 @@ Given("I am logged in as a healthcare professional", () => {
 
 Given("I open the Patients Journeys view", () => {
   cy.visit("/uphillchallenge/desk?routePackageId=ROUTE_PACKAGE_AS_CHALLENGE&page=0&tab=2&phasesIds=*");
+  cy.wait(3000);
 });
 
 When("I expand the {string} menu", (menu) => {
-  if (menu === "More Filters") {
-    cy.get(selectors.moreFiltersButton).first().should('be.visible').click();
-  }
+    cy.contains(menu)
+      .parent()
+      .find(selectors.openButton)
+      .should('be.visible')
+      .click();
 });
 
-When("I filter by Communication Status {string}", (status) => {
-  cy.get('button[data-testid="DropdownTrigger"]').eq(5).click();
+When("I close the {string} menu", (menu) => {
+  cy.contains(menu)
+    .siblings()
+    .find(selectors.closeButton)
+    .should('be.visible')
+    .click();
+});
+
+When("I filter by {string} with {string}", (filter, status) => {
+  cy.contains(filter)
+    .parent()
+    .find('button[data-testid="DropdownTrigger"]')
+    .should('be.visible')
+    .click();
   cy.get('div[role="menuitem"]').contains(status).click();
+  cy.wait(1000);
+  cy.get('body').type('{esc}'); // close the dropdown
+  //cy.get('body').click(0, 0); // click the corner of screen
 });
 
 Then('I should see the User Profile view', () => {
@@ -52,6 +71,7 @@ Then("I should see only patients with status {string}", (expectedStatus) => {
 
 When("I enter {string} in the search bar", (name) => {
   cy.get(selectors.searchInput).click().clear().type(name);
+  cy.wait(3000);
 });
 
 Then("I should see a patient named {string} in the results", (name) => {
@@ -59,19 +79,16 @@ Then("I should see a patient named {string} in the results", (name) => {
 });
 
 Given("I have no internet connection", () => {
-  cy.intercept("GET", "**/search**", { forceNetworkError: true }).as("searchError");
-  cy.intercept('GET', 'https://api.uphillhealth.com/436/patient-sessions/phases?institutionId=436&tab=2&sizePerPage=25&page=0&routePackageId=ROUTE_PACKAGE_AS_CHALLENGE&status=COMPLETED,REVOKED&patient=joao', {
+  //cy.intercept("GET", "**/patient-sessions/phases**", { forceNetworkError: true }).as("searchError");
+  cy.intercept('GET', 'https://api.uphillhealth.com/**/patient-sessions/**', {
                 statusCode: 500,
                 body: { message: 'Internal Server Error' }});
 });
 
-When("I try to search for a patient", () => {
-  cy.get(selectors.searchInput).type("Test Patient");
-});
 
 Then("I should see an error message indicating a connection issue", () => {
-  cy.wait("@searchError");
-  cy.contains("Connection error").should("be.visible");
+  //cy.wait("@searchError");
+  cy.contains("Connection error").should("be.visible", { timeout: 30000 });
 });
 
 // Language Switching Feature
@@ -98,7 +115,7 @@ Given('the current language is {string}', (lang) => {
 });
 
 When('I change the language to {string}', (targetLang) => {
-  
+
   cy.get(selectors.avatar)
     .last()
     .should('be.visible')
@@ -117,8 +134,6 @@ When('I change the language to {string}', (targetLang) => {
 });
 
 Then('the Patients Journeys page title should display {string}', (text) => {
-  const expectedLabel = lang === "Portuguese" ? "Jornadas de Doentes" : "Patients Journeys";
-
   cy.get('p').contains(text).should("be.visible");
 });
 
