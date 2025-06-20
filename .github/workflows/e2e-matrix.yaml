@@ -1,6 +1,5 @@
 name: Cypress E2E Tests (Multi-Browser + Allure)
 
-
 on:
   push:
     branches: [main, dev]
@@ -9,6 +8,11 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Cypress tags to run (e.g., @searchFilters)'
+        required: false
+        default: ''
 
 jobs:
   run-tests:
@@ -42,9 +46,9 @@ jobs:
           install: true
           command: npx cypress run
         env:
-          username: ${{ secrets.CYPRESS_USERNAME }}
-          password: ${{ secrets.CYPRESS_PASSWORD }}
-          tags: $${{ TAGS }}
+          CYPRESS_username: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_password: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_tags: ${{ github.event.inputs.tags }}
 
       - name: Upload Allure results
         if: always()
@@ -87,11 +91,11 @@ jobs:
                 github.event_name == 'pull_request' && format('pr-{0}/allure-report', github.event.pull_request.number) ||
                 'push/allure-report' }}
 
-       - name: Comment PR with Allure report link
+      - name: Comment PR with Allure report link
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Allure Report (Multi-Browser) is ready.  
+            Allure Report (Multi-Browser) is ready.
             View it here: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/${{ github.event_name == 'pull_request' && format('pr-{0}/allure-report', github.event.pull_request.number) || 'push/allure-report' }}
