@@ -1,0 +1,42 @@
+name: Nightly E2E Regression
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # Every day at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  nightly-e2e:
+    name: Nightly E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Cypress E2E Tests (only @nightly)
+        uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          install: true
+          start: npm start
+          wait-on: 'http://localhost:3000'  # Remove if testing staging
+          command: npx cypress run --env tags='@nightly'
+        env:
+          username: ${{ secrets.CYPRESS_USERNAME }}
+          password: ${{ secrets.CYPRESS_PASSWORD }}
+
+      - name: Generate Allure Report
+        if: always()
+        run: npx allure generate allure-results --clean -o allure-report
+
+      - name: Deploy Allure Report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_dir: ./allure-report
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          destination_dir: nightly/allure-report
+
