@@ -46,9 +46,9 @@ jobs:
           install: true
           command: npx cypress run
         env:
-          CYPRESS_username: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_password: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_tags: ${{ github.event.inputs.tags }}
+          username: ${{ secrets.CYPRESS_USERNAME }}
+          password: ${{ secrets.CYPRESS_PASSWORD }}
+          tags: ${{ github.event.inputs.tags }}
 
       - name: Upload Allure results
         if: always()
