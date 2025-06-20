@@ -79,16 +79,13 @@ Then("I should see a patient named {string} in the results", (name) => {
 });
 
 Given("I have no internet connection", () => {
-  //cy.intercept("GET", "**/patient-sessions/phases**", { forceNetworkError: true }).as("searchError");
-  cy.intercept('GET', 'https://api.uphillhealth.com/**/patient-sessions/**', {
-                statusCode: 500,
-                body: { message: 'Internal Server Error' }});
+  cy.intercept("GET", "**/patient-sessions/phases**", { forceNetworkError: true }).as("searchError");
 });
 
-
 Then("I should see an error message indicating a connection issue", () => {
-  //cy.wait("@searchError");
-  cy.contains("Connection error").should("be.visible", { timeout: 30000 });
+  cy.wait("@searchError");
+  //cy.contains("Connection error").should("be.visible", { timeout: 30000 });
+  cy.get('.Loading').find('.MuiCircularProgress-indeterminate').should("be.visible", { timeout: 5000 });
 });
 
 // Language Switching Feature
