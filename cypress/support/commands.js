@@ -6,6 +6,9 @@ Cypress.Commands.add('login', () => {
 
   cy.visit(loginUrl);
 
+  cy.log('Found username:' + Cypress.env('USERNAME'))
+  cy.log('Found password:' + Cypress.env('PASSWORD'))
+
   // Accept cookie consent if present
   cy.get(loginSelectors.cookieConsentButton, { timeout: 5000 })
     .should('be.visible')
@@ -17,7 +20,7 @@ Cypress.Commands.add('login', () => {
   // Enter email
   cy.get(loginSelectors.emailInput)
     .should('be.visible')
-    .type(Cypress.env('username'), { log: false }) // Hide sensitive data in logs
+    .type(Cypress.env('USERNAME'), { log: false }) // Hide sensitive data in logs
     .then(() => {
       cy.log('Email entered');
     });
@@ -34,7 +37,7 @@ Cypress.Commands.add('login', () => {
   // Enter password
   cy.get(loginSelectors.passwordInput)
     .should('be.visible')
-    .type(Cypress.env('password'), { log: false }) // Hide sensitive data in logs
+    .type(Cypress.env('PASSWORD'), { log: false }) // Hide sensitive data in logs
     .then(() => {
       cy.log('Password entered');
     });
