@@ -1,3 +1,5 @@
 cypress.env.json
 allure-results/
 node_modules/
+cypress/downloads
+cypress/screenshots

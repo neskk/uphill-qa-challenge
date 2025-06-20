@@ -19,7 +19,7 @@ Given("I am logged in as a healthcare professional", () => {
 });
 
 Given("I open the Patients Journeys view", () => {
-  cy.visit("/uphillchallenge/desk?routePackageId=ROUTE_PACKAGE_AS_CHALLENGE&page=0&tab=2&phasesIds=*");
+  cy.visit(mainUrl);
   cy.wait(3000);
   cy.url()
     .should('include', 'uphillchallenge/desk', { timeout: 5000 })

@@ -36,16 +36,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Debug environment variables
-        run: |
-          echo "CYPRESS_USERNAME is set: ${CYPRESS_USERNAME:+true}"
-          echo "CYPRESS_PASSWORD is set: ${CYPRESS_PASSWORD:+true}"
-          echo "CYPRESS_TAGS: $CYPRESS_tags"
-        env:
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_TAGS: ${{ github.event.inputs.tags }}
-
       - name: Prepare allure results folder
         run: rm -rf allure-results && mkdir allure-results
 
