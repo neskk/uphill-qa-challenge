@@ -6,7 +6,7 @@
 
 ## Requirements
 
-- Node.js v22+
+- Node.js v18+
 - Java SE v8+ (for Allure reports)
 
 ## Usage

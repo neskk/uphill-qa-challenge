@@ -39,7 +39,7 @@ export default defineConfig({
     baseUrl: "https://uphillhealth.com",
     env: {
       allure: true,
-      tags: "@basic",
+      //tags: process.env.TAGS || "@basic",
     },
     // https://docs.cypress.io/app/references/configuration#Timeouts
     defaultCommandTimeout: 4000,
