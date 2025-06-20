@@ -5,7 +5,8 @@ const selectors = {
   communicationStatusFilter: '[data-testid="filter-communication-status"]',
   avatar: '[data-testid="Avatar"]',
   boardCard: '[id^="board-card-"]',
-  tooltipTrigger: '[data-testid="Tooltip-Trigger"]'
+  tooltipTrigger: '[data-testid="Tooltip-Trigger"]',
+  menuLink: '[data-testid="menu-link"]'
 };
 
 const mainUrl = "/uphillchallenge/desk?routePackageId=ROUTE_PACKAGE_AS_CHALLENGE&page=0&tab=2&phasesIds=*";
@@ -20,7 +21,21 @@ Given("I am logged in as a healthcare professional", () => {
 Given("I open the Patients Journeys view", () => {
   cy.visit("/uphillchallenge/desk?routePackageId=ROUTE_PACKAGE_AS_CHALLENGE&page=0&tab=2&phasesIds=*");
   cy.wait(3000);
+  cy.url()
+    .should('include', 'uphillchallenge/desk', { timeout: 5000 })
 });
+
+When("I click the {string} menu", (text) => {
+  cy.get(selectors.menuLink)
+    .contains(text)
+    .should('be.visible')
+    .click();
+
+  cy.wait(3000);
+  cy.url()
+    .should('include', 'uphillchallenge', { timeout: 5000 })
+});
+
 
 When("I expand the {string} menu", (menu) => {
     cy.contains(menu)
@@ -98,16 +113,24 @@ Given('the current language is {string}', (lang) => {
     .should('be.visible')
     .click();
 
-  cy.get('.LanguageSelecterContainer')
-    .find('p.LanguageSelecterFont')
+  cy.get('.LanguageSelecterContainer p.LanguageSelecterFont')
     .should('be.visible')
     .invoke('text')
-    .should('equal', lang);
-  /*
-  cy.get('.LanguageSelecterContainer')
-    .find('p.LanguageSelecterFont')
-    .click();
-  */
+    .then((text) => {
+      if (text !== lang) {
+        // If language doesn't match, change it
+        cy.get('.LanguageSelecterContainer p.LanguageSelecterFont')
+          .click();
+        cy.get('p:not(.LanguageSelecterFont)')
+          .contains(lang)
+          .should('be.visible')
+          .click();
+        cy.log(`Changed language to ${lang}`);
+      } else {
+        cy.log(`Language already set to ${lang}`);
+      }
+    });
+
   Cypress.env('currentLanguage', lang);
 });
 
@@ -130,8 +153,7 @@ When('I change the language to {string}', (targetLang) => {
   Cypress.env('currentLanguage', targetLang);
 });
 
-Then('the Patients Journeys page title should display {string}', (text) => {
-  cy.get('p').contains(text).should("be.visible");
+Then('the page title should display {string}', (text) => {
+  cy.contains(text).should("be.visible");
 });
-
 

@@ -1,6 +1,5 @@
 Feature: Search patients by name
 
-  @basic
   Scenario: Search for an existing patient by name
     Given I am logged in as a healthcare professional
     And I open the Patients Journeys view
