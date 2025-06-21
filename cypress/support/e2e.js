@@ -1,4 +1,4 @@
-import "allure-cypress";
+//import "allure-cypress";
 
 import './commands'; // Load custom commands
 

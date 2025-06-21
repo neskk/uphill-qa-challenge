@@ -2,7 +2,7 @@
   "dependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^22.1.0",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.5",
-    "allure-cypress": "^3.2.2",
+    "allure-cypress": "^3.3.0",
     "cypress": "^14.5.0",
     "cypress-on-fix": "^1.1.0",
     "esbuild": "^0.25.5"

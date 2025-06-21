@@ -7,7 +7,8 @@ import { allureCypress } from "allure-cypress/reporter";
 import cypressOnFix from "cypress-on-fix";
 
 export default defineConfig({
-  defaultBrowser: "chrome",
+  defaultBrowser: "firefox",
+  //video: true,
   e2e: {
     //chromeWebSecurity: false,
     specPattern: "cypress/e2e/**/*.feature",
@@ -16,9 +17,13 @@ export default defineConfig({
       on = cypressOnFix(on);
 
       await addCucumberPreprocessorPlugin(on, config);
-      on("file:preprocessor", createBundler({
+
+      const bundler = createBundler({
         plugins: [createEsbuildPlugin(config)],
-      }));
+        sourcemap: 'inline',
+      })
+      on("file:preprocessor", bundler);
+      /*
       allureCypress(on, config, {
         resultsDir: "allure-results",
         links: {
@@ -33,13 +38,14 @@ export default defineConfig({
           node_version: process.version,
         },
       });
+      */
 
       return config;
     },
     baseUrl: "https://uphillhealth.com",
     env: {
       allure: true,
-      //tags: process.env.TAGS || "@basic",
+      //tags: process.env.TAGS || "@wip",
     },
     // https://docs.cypress.io/app/references/configuration#Timeouts
     defaultCommandTimeout: 4000,
