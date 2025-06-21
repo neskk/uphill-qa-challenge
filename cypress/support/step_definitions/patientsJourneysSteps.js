@@ -24,15 +24,13 @@ Given("I am logged in as a healthcare professional", () => {
   cy.login();
 });
 
-/*
 Given("I open the Patients Journeys view", () => {
   cy.visit(mainUrl);
-  cy.wait(3000);
   cy.url()
     .should('include', 'uphillchallenge/desk', { timeout: 5000 })
 });
-*/
 
+/*
 Given("I open the Patients Journeys view", () => {
   cy.origin("https://uphillhealth.com", { args: { mainUrl } }, ({ mainUrl }) => {
     cy.visit(mainUrl);
@@ -40,7 +38,7 @@ Given("I open the Patients Journeys view", () => {
     cy.url().should('include', 'uphillchallenge/desk');
   });
 });
-
+*/
 When("I click the {string} menu", (text) => {
   cy.get(selectors.menuLink)
     .contains(text)
@@ -79,8 +77,9 @@ When("I filter by {string} with {string}", (filter, status) => {
 });
 
 Then('I should see the User Profile view', () => {
-  cy.url().should('include', 'settings/profile');
-  //cy.contains('Patients Journeys').should('be.visible');
+  cy.origin('https://id.uphillhealth.com', () => {
+    cy.contains('p.title', 'Personal Data').should('be.visible');
+  });
 });
 
 Then('I should see the Patients Journeys view', () => {
