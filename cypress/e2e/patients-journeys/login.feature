@@ -1,5 +1,6 @@
 Feature: Patients Journeys Manual Login
 
+  @wip
   Scenario: Successful manual login
     Given I am logged in as a healthcare professional
     And the current language is "English"

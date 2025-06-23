@@ -3,12 +3,8 @@ Cypress.Commands.add('login', () => {
   const args = {
       username: Cypress.env('USERNAME'),
       password: Cypress.env('PASSWORD')
-  }
+  };
   cy.intercept('POST', '/api/user/login').as('login');
-  //cy.intercept('https://api-iam.eu.intercom.io/messenger/web/ping');
-  // https://api.uphillhealth.com/institutions
-  cy.intercept('POST', 'api.uphillhealth.com/institutions').as('institutions');
-
   // https://docs.cypress.io/api/commands/origin#SSO-login-custom-command
   cy.origin('https://id.uphillhealth.com', { args: args }, ({ username, password }) => {
 
@@ -20,7 +16,7 @@ Cypress.Commands.add('login', () => {
       .click({ force: true }) // Force click to handle potential overlays
       .then(() => {
         cy.log('Cookie consent accepted');
-      })
+      });
 
     // Enter email
     cy.get('[name="upid-login-input-email"]')
@@ -74,7 +70,7 @@ Cypress.Commands.add('apiLogin', () => {
   const args = {
       username: Cypress.env('USERNAME'),
       password: Cypress.env('PASSWORD')
-  }
+  };
   cy.origin('https://id.uphillhealth.com', { args: args }, ({ username, password }) => {
     cy.visit('https://id.uphillhealth.com/signin');
     cy.request({

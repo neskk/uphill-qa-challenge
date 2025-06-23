@@ -27,7 +27,15 @@ Given("I am logged in as a healthcare professional", () => {
 Given("I open the Patients Journeys view", () => {
   cy.visit(mainUrl);
   cy.url()
-    .should('include', 'uphillchallenge/desk', { timeout: 5000 })
+    .should('include', 'uphillchallenge/desk', { timeout: 5000 });
+});
+
+Given("I navigate to {string}", (targetUrl) => {
+  cy.visit(targetUrl);
+});
+
+Then('I should see the text {string}', (text) => {
+  cy.contains(text).should('be.visible');
 });
 
 /*
