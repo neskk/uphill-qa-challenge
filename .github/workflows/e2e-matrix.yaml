@@ -46,6 +46,9 @@ jobs:
           install: true
           command: npx cypress run
         env:
+          USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          TAGS: ${{ github.event.inputs.tags }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TAGS: ${{ github.event.inputs.tags }}
