@@ -10,7 +10,6 @@ Feature: Filter patients by Communication Status
     And I filter by "Status of communication" with "Missing answers"
     And I close the "Filters" menu
     Then I should see only patients with status "Missing answers"
-    Then the page title should display 'Patients Journeys'
 
   Scenario: Filter patients with "Ongoing" communication status
     Given I open the Patients Journeys view

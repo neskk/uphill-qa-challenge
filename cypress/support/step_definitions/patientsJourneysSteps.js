@@ -65,13 +65,14 @@ When("I close the {string} menu", (menu) => {
 });
 
 When("I filter by {string} with {string}", (filter, status) => {
+  cy.intercept('GET', '**&communicationState=**').as('filter');
   cy.contains(filter)
     .parent()
     .find('button[data-testid="DropdownTrigger"]')
     .should('be.visible')
     .click();
   cy.get('div[role="menuitem"]').contains(status).click();
-  cy.wait(1000);
+  cy.wait('@filter');
   cy.get('body').type('{esc}'); // close the dropdown
   //cy.get('body').click(0, 0); // alternatively: click the corner of screen
 });
@@ -97,16 +98,26 @@ Then("I should see only patients with status {string}", (expectedStatus) => {
 // Search Feature
 
 When("I enter {string} in the search bar", (name) => {
+  const encodedName = encodeURIComponent(name).replace(/%20/g, '+');
+  cy.intercept('GET', '**&patient=' + encodedName).as('search');
   cy.get(selectors.searchInput).click().clear().type(name);
-  cy.wait(3000);
+  cy.wait('@search');
 });
 
 Then("I should see a patient named {string} in the results", (name) => {
-  cy.get(selectors.boardCard).contains(name).should("be.visible");
+  cy.get(selectors.boardCard)
+    .should('have.length.greaterThan', 0)
+    .each(($card) => {
+      cy.wrap($card).should('contain.text', name);
+    });
 });
 
 Given("I have no internet connection", () => {
   cy.intercept("GET", "**/patient-sessions/phases**", { forceNetworkError: true }).as("searchError");
+});
+
+Then("I should not see any patient in the results", () => {
+  cy.get(selectors.boardCard).should('not.exist');
 });
 
 Then("I should see an error message indicating a connection issue", () => {
@@ -131,12 +142,15 @@ Given('the current language is {string}', (lang) => {
     .then((text) => {
       if (text !== lang) {
         // If language doesn't match, change it
+        cy.intercept('PUT', 'https://api-id.uphillhealth.com/user/update/**').as('updateUser');
         cy.get('.LanguageSelecterContainer p.LanguageSelecterFont')
           .click();
         cy.get('p:not(.LanguageSelecterFont)')
           .contains(lang)
           .should('be.visible')
           .click();
+        cy.wait('@updateUser');
+        cy.wait('3000');
         cy.log(`Changed language to ${lang}`);
       } else {
         cy.log(`Language already set to ${lang}`);
@@ -147,7 +161,7 @@ Given('the current language is {string}', (lang) => {
 });
 
 When('I change the language to {string}', (targetLang) => {
-
+  cy.intercept('PUT', 'https://api-id.uphillhealth.com/user/update/**').as('updateUser');
   cy.get(selectors.avatar)
     .last()
     .should('be.visible')
@@ -161,7 +175,9 @@ When('I change the language to {string}', (targetLang) => {
   cy.get('p:not(.LanguageSelecterFont)').contains(targetLang)
     .should('be.visible')
     .click();
-  cy.wait(3000);
+  cy.wait('@updateUser');
+  cy.wait('3000');
+  cy.log(`Changed language to ${targetLang}`);
   Cypress.env('currentLanguage', targetLang);
 });
 
