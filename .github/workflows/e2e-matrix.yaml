@@ -44,7 +44,7 @@ jobs:
         with:
           browser: ${{ matrix.browser }}
           install: true
-          command: npx cypress run
+          command: npx cypress run --headless
         env:
           USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
@@ -52,7 +52,6 @@ jobs:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TAGS: ${{ github.event.inputs.tags }}
-          DEBUG: cypress:*
 
       - name: Upload Allure results
         if: always()
